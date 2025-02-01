@@ -1,0 +1,70 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  serviceConnection : 'sc-azure'
+  resourceGroupDev: 'rg-tardi-dev'
+  resourceGroupProd: 'rg-tardi-prod'
+  location: 'canadacentral'
+  templateFile: 'bicep/main.bicep'
+  sqlAdminLogin: 'adminuser'
+  sqlAdminPassword : 'P@ssw0rd2024!'
+  storageNameDev : 'devtoragetardi01'
+  storageNameProd: 'prodstoragetardi01'
+  sqlServerNameDev : 'devsqlserver'
+  sqlServerNameProd: 'prodsqlserver'
+
+stages:
+- stage: Deploy_Dev
+  displayName: 'Deployer en Dev'
+  jobs:
+  - job: Deploy
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          az --version
+          az group create --name $(resourceGroupDev) --location $(location)
+          az deployment group create --resource-group $(resourceGroupDev) --template-file $(templateFile) --parameters location=$(location) sqlAdminLogin=$(sqlAdminLogin) sqlAdminPassword=$(sqlAdminPassword) storageName=$(storageNameDev) sqlServerName=$(sqlServerNameDev)
+      displayName: 'Environnement de Dev'
+
+- stage: Deploy_Prod
+  displayName: 'Deployer en Production'
+  dependsOn: Deploy_Dev
+  condition: succeeded()
+  jobs:
+  - deployment: Deploy_Prod
+    environment: 'Production' 
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+            displayName: 'Checkout du depot (Production)'
+
+          - script: |
+              echo "verifie le contenu du repertoire :"
+              ls -R  # Affiche la structure des repertoires
+            displayName: 'Afficher la structure du répertoire'
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                az --version
+                az group create --name $(resourceGroupProd) --location $(location)
+                az deployment group create --resource-group $(resourceGroupProd) --template-file $(templateFile) --parameters location=$(location) sqlAdminLogin=$(sqlAdminLogin) sqlAdminPassword=$(sqlAdminPassword) storageName=$(storageNameProd) sqlServerName=$(sqlServerNameProd) 
+            displayName: 'Environnement de production'
