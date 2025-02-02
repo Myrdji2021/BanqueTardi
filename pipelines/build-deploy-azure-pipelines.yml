@@ -129,7 +129,7 @@ stages:
                azureSubscription: $(serviceConnection)
                appType: 'webApp'
                WebAppName: 'apicredit'
-               package: '$(System.ArtifactsDirectory)//**/CarteDeCredit.API.*.zip'
+               package: '$(System.ArtifactsDirectory)/**/CarteDeCredit.API.*.zip'
              displayName: 'Deploiement apicredit'
             
 
@@ -202,7 +202,7 @@ stages:
                azureSubscription: $(serviceConnection)
                appType: 'webApp'
                WebAppName: 'apicredit'
-               package: '$(System.ArtifactsDirectory)//**/CarteDeCredit.API.*.zip'
+               package: '$(System.ArtifactsDirectory)/**/CarteDeCredit.API.*.zip'
              displayName: 'Deploiement apicredit'
              
 - stage: DeployMVCToProd
