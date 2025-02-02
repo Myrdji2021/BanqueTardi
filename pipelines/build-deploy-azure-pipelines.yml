@@ -156,7 +156,7 @@ stages:
       displayName: 'Déploiement Application MVC'
              
 - stage : 'DeployToProd' 
-  displayName:  'Déploiment en Production'
+  displayName:  'Déploiment des APis en Production'
   pool:
     vmImage: 'ubuntu-latest'
   dependsOn: 'DeployToDev'
