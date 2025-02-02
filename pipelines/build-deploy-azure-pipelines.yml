@@ -155,7 +155,7 @@ stages:
         package: '$(System.ArtifactsDirectory)/**/BanqueTardi.MVC.*.zip'
       displayName: 'Déploiement Application MVC'
              
-- stage : 'Deploy_APIs_Prod' 
+- stage : 'DeployToProd' 
   displayName:  'Déploiment en Production'
   pool:
     vmImage: 'ubuntu-latest'
